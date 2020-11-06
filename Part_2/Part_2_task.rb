@@ -9,10 +9,6 @@ class Station
     @trains_list = []
   end
 
-  def show_trains
-    trains_list.each { |train| p train.name }
-  end
-
   def show_trains_types
     types_list = []
     types_hash = Hash.new { 0 }
@@ -21,17 +17,10 @@ class Station
     types_hash
   end
 
-  def train_departure(train)
+  def delete_train(train)
     return unless trains_list.include?(train)
 
-    p 'Куда хотите отправить поезд? (f/b)'
-    answer = gets.chomp
-    case answer
-    when 'f'
-      train.move_forward
-    when 'b'
-      train.move_back
-    end
+    trains_list.delete(train)
   end
 end
 
@@ -52,10 +41,6 @@ class Route
   def remove_station(station)
     @stations.delete(station) if @stations.include?(station)
   end
-
-  def show_stations
-    @stations.each { |station| puts station.name }
-  end
 end
 
 # Train
@@ -67,8 +52,8 @@ class Train
     @train_type = train_type
     @car_quantity = car_quantity
     @speed = 0
-    @train_route = []
-    @train_station = nil
+    @train_route = train_route
+    @train_station = train_station
   end
 
   def accelerate(speed)
@@ -103,32 +88,26 @@ class Train
   def move_forward
     return unless speed.positive? && next_station
 
-    i = @train_route.stations.index(@train_station)
-    @train_station = @train_route.stations[i += 1]
-    @train_route.stations[i].trains_list << self
-    @train_route.stations[i - 1].trains_list.delete(self)
+    @train_station = next_station
   end
 
   def move_back
     return unless speed.positive? && previous_station
 
-    i = @train_route.stations.index(@train_station)
-    @train_station = @train_route.stations[i -= 1]
-    @train_route.stations[i].trains_list << self
-    @train_route.stations[i + 1].trains_list.delete(self)
+    @train_station = previous_station
   end
 
   def previous_station
     i = @train_route.stations.index(@train_station)
     return unless i.positive?
 
-    @train_route.stations[i - 1].name
+    @train_route.stations[i - 1]
   end
 
   def next_station
     i = @train_route.stations.index(@train_station)
     return unless i < (@train_route.stations.size - 1)
 
-    @train_route.stations[i + 1].name
+    @train_route.stations[i + 1]
   end
 end
