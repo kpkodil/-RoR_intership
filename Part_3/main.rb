@@ -11,7 +11,7 @@ require_relative 'cargo_wagon'
 #
 #
 class ProgramData
-attr_accessor :all_stations, :all_routes, :all_trains,:all_wagons,
+attr_accessor :all_stations, :all_routes, :all_trains, :all_wagons
 	def initialize(all_stations = {}, all_routes = [], all_wagons = {}, all_trains = {})
 		@all_stations = all_stations
 		@all_routes = all_routes
@@ -72,12 +72,12 @@ attr_reader
 	def create_station
 		p 'Введите название станции'
 		name = gets.chomp
-		@data.all_stations.merge!({name: Station.new(name)})
+		@data.all_stations.merge!({name => Station.new(name)})
 		return menu
 	end
 
 	def station_list
-		p "#{data.all_stations}"
+		p "#{@data.all_stations}"
 	end
 end
 
