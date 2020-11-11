@@ -56,15 +56,15 @@ end
 class StationMenu < MainMenu
   def menu
     p 'МЕНЮ СТАНЦИЙ'
+    p 'Введите 0, чтобы просмотреть список всех станций'
     p 'Введите 1, чтобы создать станцию'
-    p 'Введите 2, чтобы просмотреть список всех станций'
     p 'введите другой символ чтобы выйти'
     loop do
       choice = gets.chomp
-      if choice == '1'
+      if choice == '0'
+        stations_list
+      elsif choice == '1'
         create_station
-      elsif choice == '2'
-        station_list
       end
       break
     end
@@ -74,10 +74,9 @@ class StationMenu < MainMenu
     p 'Введите название станции'
     name = gets.chomp
     @data.all_stations.merge!({ name => Station.new(name) })
-    return @data
   end
 
-  def station_list
+  def stations_list
     p @data.all_stations.to_s
   end
 end
@@ -92,17 +91,17 @@ class TrainMenu < MainMenu
     p 'введите другой символ чтобы выйти'
 
     loop do
-    choice = gets.chomp
+      choice = gets.chomp
       if choice == '0'
-      	trains_list
+        trains_list
       elsif	choice == '1'
-        type = "notype"
+        type = 'notype'
         create_train(type)
       elsif choice == '2'
-        type = "passenger"
+        type = 'passenger'
         create_train(type)
       elsif choice == '3'
-        type = "cargo"
+        type = 'cargo'
         create_train(type)
       end
       break
@@ -116,13 +115,112 @@ class TrainMenu < MainMenu
       @data.all_trains.merge!({ name => PassengerTrain.new(name) })
     elsif type == 'cargo'
       @data.all_trains.merge!({ name => CargoTrain.new(name) })
-    else type == 'notype'
+    else
+      type == 'notype'
       @data.all_trains.merge!({ name => Train.new(name) })
     end
   end
 
   def trains_list
-    p "#{@data.all_trains.to_s}"
+    p @data.all_trains.to_s
+  end
+end
+
+class RouteMenu < MainMenu
+  def menu
+    p 'Вы зашли в меню маршрутов'
+    p 'Введите 0, чтобы посмотреть все маршруты'
+    p 'Нажмите 1, чтобы создать маршрут'
+    p 'Введите 2, чтобы добавить станцию на маршрут'
+    p 'Введите 3, чтобы удалить станцию из маршрута'
+    p 'введите другой символ чтобы выйти'
+
+    loop do
+      choice = gets.chomp
+      if choice == '0'
+        routes_list
+      elsif	choice == '1'
+        create_route
+      elsif choice == '2'
+        add_station
+      elsif choice == '3'
+        remove_station
+      end
+      break
+    end
+  end
+
+  def routes_list
+    p @data.all_routes.to_s
+  end
+
+  def create_route
+    # НУЖНО СДЕЛАТЬ ПРОВЕРКУ НА СОВПАДЕНИЕ base и terminal в файле route.rb!!!
+    p 'Введите название маршрута'
+    name = gets.chomp
+    p 'Задайте начальную станцию в маршруте'
+    base = @data.all_stations[gets.chomp]
+    p 'Задайте конечную станцию в маршруте'
+    terminal = @data.all_stations[gets.chomp]
+    @data.all_routes.merge!({ name => Route.new(name, base, terminal) })
+  end
+
+  def add_station
+    p 'К какому маршруту добавить станцию?'
+    route_name = gets.chomp
+    p 'Какую станцию добавить?'
+    station_name = gets.chomp
+    station = @data.all_stations[station_name]
+    @data.all_routes[route_name].insert_station(station)
+  end
+
+  # Можно ли называть метод в главном файле таким же как в методе в остальных файлах?
+
+  def remove_station
+    p 'Из какого маршрута удалить станцию?'
+    route_name = gets.chomp
+    p 'Какую станцию удалить?'
+    station_name = gets.chomp
+    station = @data.all_stations[station_name]
+    @data.all_routes[route_name].remove_station(station)
+  end
+end
+
+class WagonMenu < MainMenu
+  def menu
+    p 'Вы зашли в меню вагонов'
+    p 'Введите 0, чтобы посмотреть все вагоны'
+    p 'Введите 1, чтобы создать пассажирский вагон'
+    p 'Введите 2, чтобы создать грузовой вагон'
+    p 'введите другой символ чтобы выйти'
+
+    loop do
+      choice = gets.chomp
+      if choice == '0'
+        wagons_list
+      elsif	choice == '1'
+        type = 'passenger'
+        create_wagon(type)
+      elsif choice == '2'
+        type = 'cargo'
+        create_wagon(type)
+      end
+      break
+    end
+  end
+
+  def create_wagon(type)
+    p 'Введите название вагона'
+    name = gets.chomp
+    if type == 'passenger'
+      @data.all_wagons.merge!({ name => PassengerWagon.new(name) })
+    elsif type == 'cargo'
+      @data.all_wagons.merge!({ name => CargoWagon.new(name) })
+    end
+  end
+
+  def wagons_list
+    p @data.all_wagons.to_s
   end
 end
 
