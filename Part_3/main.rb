@@ -150,7 +150,7 @@ class RouteMenu < MainMenu
     end
   end
 
-  def routes_list
+  def routes_list1
     p @data.all_routes.to_s
   end
 
@@ -192,6 +192,8 @@ class WagonMenu < MainMenu
     p 'Введите 0, чтобы посмотреть все вагоны'
     p 'Введите 1, чтобы создать пассажирский вагон'
     p 'Введите 2, чтобы создать грузовой вагон'
+    p 'Введите 3, чтобы прицепить вагон к поезду'
+    p 'Введите 4, чтобы отцепить вагон от поезда'
     p 'введите другой символ чтобы выйти'
 
     loop do
@@ -204,6 +206,10 @@ class WagonMenu < MainMenu
       elsif choice == '2'
         type = 'cargo'
         create_wagon(type)
+      elsif choice == '3'
+      	add_to_train
+      elsif choice == '4'
+       	remove_from_train 	  	  
       end
       break
     end
@@ -222,6 +228,24 @@ class WagonMenu < MainMenu
   def wagons_list
     p @data.all_wagons.to_s
   end
+
+  def add_to_train
+    p 'К какому поезду хотите прицепить вагон?'
+    train_name = gets.chomp
+    p 'Какой вагон прицепить?'
+    wagon_name = gets.chomp
+    wagon = @data.all_wagons[wagon_name]
+    @data.all_trains[train_name].add_wagon(wagon)
+  end
+
+  def remove_from_train
+    p 'От какого поезда хотите отцепить вагон?'
+    train_name = gets.chomp
+    p 'Какой вагон отцепить?'
+    wagon_name = gets.chomp
+    wagon = @data.all_wagons[wagon_name]
+    @data.all_trains[train_name].remove_wagon(wagon)
+  end  	
 end
 
 data = ProgramData.new
