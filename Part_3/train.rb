@@ -19,21 +19,19 @@ class Train
   end
 
   def add_wagon(wagon)
-    return unless speed.zero? && self.train_type == wagon.wagon_type
+    return unless speed.zero? && train_type == wagon.wagon_type
 
-    self.wagon_list << wagon 
+    wagon_list << wagon
   end
 
   def remove_wagon(wagon)
-    return unless speed.zero? && self.train_type == wagon.wagon_type
+    return unless speed.zero? && train_type == wagon.wagon_type
 
-    self.wagon_list.delete(wagon)
+    wagon_list.delete(wagon)
   end
 
-
-# ДОБАВИТЬ УДАЛЕНИЕ СО СТАНЦИИ ПРИ ПЕРЕХОДЕ НА НОВЫЙ МАРШРУТ
+  # ДОБАВИТЬ УДАЛЕНИЕ СО СТАНЦИИ ПРИ ПЕРЕХОДЕ НА НОВЫЙ МАРШРУТ
   def take_route(route)
-
     @train_route = route
     @train_station = route.stations[0]
     @train_route.stations[0].trains_list << self
@@ -63,7 +61,7 @@ class Train
     return unless i.positive?
 
     @train_route.stations[i - 1]
-  end  
+  end
 
   def next_station
     i = @train_route.stations.index(@train_station)

@@ -1,5 +1,5 @@
 class Wagon
-attr_reader :wagon_type
+  attr_reader :wagon_type
 
   def initialize(name)
     @name = name
