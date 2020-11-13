@@ -5,7 +5,7 @@ class Train
     @name = name
     @train_type = train_type
     @wagon_list = []
-    @speed = 0
+    @speed = 1
   end
 
   def accelerate(speed)

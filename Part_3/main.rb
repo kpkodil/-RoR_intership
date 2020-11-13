@@ -1,5 +1,3 @@
-# ПОСМОТРЕТЬ ДОБАВЛЕНИЕ МАРШРУТА К ПОЕЗДУ
-
 require_relative 'station'
 require_relative 'route'
 require_relative 'train'
@@ -9,7 +7,8 @@ require_relative 'wagon'
 require_relative 'passenger_wagon'
 require_relative 'cargo_wagon'
 
-# Реализация через подклассы(подменю)
+# 2 Класса - 1(ProgramData) - хранение данных, 2(MainMenu) - Интерфейс
+# Класс MainMenu содержит подклассы - подменю
 
 class ProgramData
   attr_accessor :all_stations, :all_routes, :all_trains, :all_wagons
@@ -48,13 +47,26 @@ class MainMenu
         RouteMenu.new(@data).menu
       elsif choice == '4'
         WagonMenu.new(@data).menu
-      elsif choice == '5'
-        seed
+#      elsif choice == '5'
+#        seed
       else
         p 'Вы ввели недопустимую команду!'
       end
     end
   end
+
+=begin 
+
+Опционально можно разкомментировать метод seed.
+
+Метод сид создан для автоматизации создания объектов
+Он создает:
+
+3 станции (st1, st2, st3)
+1 маршрут (rt1)
+1 поезд грузовой поезд (tr1) - скорость поезда при создании = 1
+1 грузовой вагон (carwag)
+
 
   def seed
     st1 = Station.new('st1')
@@ -69,13 +81,14 @@ class MainMenu
 
     rt1.insert_station(st3)
 
-    tr1 = Train.new('tr1')
+    tr1 = CargoTrain.new('tr1')
     @data.all_trains.merge!({ 'tr1' => tr1 })
 
     carwag = CargoWagon.new('carwag')
     @data.all_wagons.merge!({ 'carwag' => carwag })
     # @data.all_trains['tr1'].take_route(rt1)
   end
+=end
 end
 
 class StationMenu < MainMenu
@@ -94,6 +107,9 @@ class StationMenu < MainMenu
       break
     end
   end
+
+  private 
+	#Пользователь не дорлжен иметь доступ к редактированию этих методов
 
   def create_station
     p 'Введите название станции'
@@ -114,6 +130,8 @@ class TrainMenu < MainMenu
     p 'Введите 2, чтобы создать пассажирский поезд'
     p 'Введите 3, чтобы создать грузовой поезд'
     p 'Введите 4, чтобы назначить маршрут поезду'
+    p 'Введите 5, чтобы поезд проследовал на следующую станцию'
+    p 'Введите 6, чтобы поезд проследовал на предыдущую станцию'
     p 'введите другой символ чтобы выйти'
 
     loop do
@@ -131,11 +149,18 @@ class TrainMenu < MainMenu
         create_train(type)
       elsif choice == '4'
         take_route
+       elsif choice == '5'
+        move_forward
+       elsif choice == '6'
+        move_back
       end
       break
     end
   end
 
+  private 
+	#Пользователь не дорлжен иметь доступ к редактированию этих методов
+	
   def trains_list
     p @data.all_trains.to_s
   end
@@ -160,6 +185,18 @@ class TrainMenu < MainMenu
     p 'Какому поезду хотите назначить этот маршрут?'
     train_name = gets.chomp
     @data.all_trains[train_name].take_route(route)
+  end
+
+  def move_forward
+    p 'Выберите поезд'
+    train_name = gets.chomp
+    @data.all_trains[train_name].move_forward
+  end
+
+  def move_back
+    p 'Выберите поезд'
+    train_name = gets.chomp
+    @data.all_trains[train_name].move_back
   end
 end
 
@@ -187,12 +224,15 @@ class RouteMenu < MainMenu
     end
   end
 
+  private 
+	#Пользователь не дорлжен иметь доступ к редактированию этих методов
+	
   def routes_list
     p @data.all_routes.to_s
   end
 
   def create_route
-    # НУЖНО СДЕЛАТЬ ПРОВЕРКУ НА СОВПАДЕНИЕ base и terminal в файле route.rb!!!
+    
     p 'Введите название маршрута'
     name = gets.chomp
     p 'Задайте начальную станцию в маршруте'
@@ -210,8 +250,6 @@ class RouteMenu < MainMenu
     station = @data.all_stations[station_name]
     @data.all_routes[route_name].insert_station(station)
   end
-
-  # Можно ли называть метод в главном файле таким же как в методе в остальных файлах?
 
   def remove_station
     p 'Из какого маршрута удалить станцию?'
@@ -252,6 +290,9 @@ class WagonMenu < MainMenu
     end
   end
 
+  private 
+	#Пользователь не дорлжен иметь доступ к редактированию этих методов
+	
   def create_wagon(type)
     p 'Введите название вагона'
     name = gets.chomp
