@@ -1,3 +1,5 @@
+# ПОСМОТРЕТЬ ДОБАВЛЕНИЕ МАРШРУТА К ПОЕЗДУ
+
 require_relative 'station'
 require_relative 'route'
 require_relative 'train'
@@ -8,8 +10,7 @@ require_relative 'passenger_wagon'
 require_relative 'cargo_wagon'
 
 # Реализация через подклассы(подменю)
-#
-#
+
 class ProgramData
   attr_accessor :all_stations, :all_routes, :all_trains, :all_wagons
 
@@ -34,6 +35,7 @@ class MainMenu
       p 'Введите 2, чтобы зайти в меню поездов'
       p 'Введите 3, в меню маршрутов'
       p 'Введите 4, в меню вагонов'
+      p 'Введите 5, чтобы запустить сид'
       p 'Для выхода введите 0'
       choice = gets.chomp
       if choice == '0'
@@ -46,10 +48,33 @@ class MainMenu
         RouteMenu.new(@data).menu
       elsif choice == '4'
         WagonMenu.new(@data).menu
+      elsif choice == '5'
+        seed
       else
         p 'Вы ввели недопустимую команду!'
       end
     end
+  end
+
+  def seed
+    st1 = Station.new('st1')
+    @data.all_stations.merge!({ 'st1' => st1 })
+    st2 = Station.new('st2')
+    @data.all_stations.merge!({ 'st2' => st2 })
+    st3 = Station.new('st3')
+    @data.all_stations.merge!({ 'st3' => st3 })
+
+    rt1 = Route.new('rt1', st2, st1)
+    @data.all_routes.merge!({ 'rt1' => rt1 })
+
+    rt1.insert_station(st3)
+
+    tr1 = Train.new('tr1')
+    @data.all_trains.merge!({ 'tr1' => tr1 })
+
+    carwag = CargoWagon.new('carwag')
+    @data.all_wagons.merge!({ 'carwag' => carwag })
+    # @data.all_trains['tr1'].take_route(rt1)
   end
 end
 
@@ -88,6 +113,7 @@ class TrainMenu < MainMenu
     p 'Нажмите 1, чтобы создать поезд без типа'
     p 'Введите 2, чтобы создать пассажирский поезд'
     p 'Введите 3, чтобы создать грузовой поезд'
+    p 'Введите 4, чтобы назначить маршрут поезду'
     p 'введите другой символ чтобы выйти'
 
     loop do
@@ -103,9 +129,15 @@ class TrainMenu < MainMenu
       elsif choice == '3'
         type = 'cargo'
         create_train(type)
+      elsif choice == '4'
+        take_route
       end
       break
     end
+  end
+
+  def trains_list
+    p @data.all_trains.to_s
   end
 
   def create_train(type)
@@ -121,8 +153,13 @@ class TrainMenu < MainMenu
     end
   end
 
-  def trains_list
-    p @data.all_trains.to_s
+  def take_route
+    p 'Какой маршрут хотите добавить?'
+    route_name = gets.chomp
+    route = @data.all_routes[route_name]
+    p 'Какому поезду хотите назначить этот маршрут?'
+    train_name = gets.chomp
+    @data.all_trains[train_name].take_route(route)
   end
 end
 
@@ -150,7 +187,7 @@ class RouteMenu < MainMenu
     end
   end
 
-  def routes_list1
+  def routes_list
     p @data.all_routes.to_s
   end
 
@@ -207,9 +244,9 @@ class WagonMenu < MainMenu
         type = 'cargo'
         create_wagon(type)
       elsif choice == '3'
-      	add_to_train
+        add_to_train
       elsif choice == '4'
-       	remove_from_train 	  	  
+        remove_from_train
       end
       break
     end
@@ -245,7 +282,7 @@ class WagonMenu < MainMenu
     wagon_name = gets.chomp
     wagon = @data.all_wagons[wagon_name]
     @data.all_trains[train_name].remove_wagon(wagon)
-  end  	
+  end
 end
 
 data = ProgramData.new
