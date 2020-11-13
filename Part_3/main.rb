@@ -19,6 +19,37 @@ class ProgramData
     @all_wagons = all_wagons
     @all_trains = all_trains
   end
+
+  #
+  # Метод сид создан для автоматизации создания объектов
+  # Он создает:
+  #
+  # 3 станции (st1, st2, st3)
+  # 1 маршрут (rt1)
+  # 1 поезд грузовой поезд (tr1) - скорость поезда при создании = 1
+  # 1 грузовой вагон (carwag)
+  #
+
+  def self.seed(data)
+    st1 = Station.new('st1')
+    data.all_stations.merge!({ 'st1' => st1 })
+    st2 = Station.new('st2')
+    data.all_stations.merge!({ 'st2' => st2 })
+    st3 = Station.new('st3')
+    data.all_stations.merge!({ 'st3' => st3 })
+
+    rt1 = Route.new('rt1', st2, st1)
+    data.all_routes.merge!({ 'rt1' => rt1 })
+
+    rt1.insert_station(st3)
+
+    tr1 = CargoTrain.new('tr1')
+    data.all_trains.merge!({ 'tr1' => tr1 })
+
+    carwag = CargoWagon.new('carwag')
+    data.all_wagons.merge!({ 'carwag' => carwag })
+    data.all_trains['tr1'].take_route(rt1)
+  end
 end
 
 class MainMenu
@@ -47,48 +78,13 @@ class MainMenu
         RouteMenu.new(@data).menu
       elsif choice == '4'
         WagonMenu.new(@data).menu
-#      elsif choice == '5'
-#        seed
+      elsif choice == '5'
+        ProgramData.seed(@data)
       else
         p 'Вы ввели недопустимую команду!'
       end
     end
   end
-
-=begin 
-
-Опционально можно разкомментировать метод seed.
-
-Метод сид создан для автоматизации создания объектов
-Он создает:
-
-3 станции (st1, st2, st3)
-1 маршрут (rt1)
-1 поезд грузовой поезд (tr1) - скорость поезда при создании = 1
-1 грузовой вагон (carwag)
-
-
-  def seed
-    st1 = Station.new('st1')
-    @data.all_stations.merge!({ 'st1' => st1 })
-    st2 = Station.new('st2')
-    @data.all_stations.merge!({ 'st2' => st2 })
-    st3 = Station.new('st3')
-    @data.all_stations.merge!({ 'st3' => st3 })
-
-    rt1 = Route.new('rt1', st2, st1)
-    @data.all_routes.merge!({ 'rt1' => rt1 })
-
-    rt1.insert_station(st3)
-
-    tr1 = CargoTrain.new('tr1')
-    @data.all_trains.merge!({ 'tr1' => tr1 })
-
-    carwag = CargoWagon.new('carwag')
-    @data.all_wagons.merge!({ 'carwag' => carwag })
-    # @data.all_trains['tr1'].take_route(rt1)
-  end
-=end
 end
 
 class StationMenu < MainMenu
@@ -96,6 +92,7 @@ class StationMenu < MainMenu
     p 'МЕНЮ СТАНЦИЙ'
     p 'Введите 0, чтобы просмотреть список всех станций'
     p 'Введите 1, чтобы создать станцию'
+    p 'Введите 2, чтобы посмотреть поезда на станции'
     p 'введите другой символ чтобы выйти'
     loop do
       choice = gets.chomp
@@ -103,13 +100,16 @@ class StationMenu < MainMenu
         stations_list
       elsif choice == '1'
         create_station
+      elsif choice == '2'
+        show_trains
       end
       break
     end
   end
 
-  private 
-	#Пользователь не дорлжен иметь доступ к редактированию этих методов
+  private
+
+  # Пользователь не дорлжен иметь доступ к редактированию этих методов
 
   def create_station
     p 'Введите название станции'
@@ -119,6 +119,12 @@ class StationMenu < MainMenu
 
   def stations_list
     p @data.all_stations.to_s
+  end
+
+  def show_trains
+    p 'Выберите станцию'
+    station = gets.chomp
+    @data.all_stations[station].trains_list.each { |train| p train.name.to_s }
   end
 end
 
@@ -149,18 +155,19 @@ class TrainMenu < MainMenu
         create_train(type)
       elsif choice == '4'
         take_route
-       elsif choice == '5'
+      elsif choice == '5'
         move_forward
-       elsif choice == '6'
+      elsif choice == '6'
         move_back
       end
       break
     end
   end
 
-  private 
-	#Пользователь не дорлжен иметь доступ к редактированию этих методов
-	
+  private
+
+  # Пользователь не дорлжен иметь доступ к редактированию этих методов
+
   def trains_list
     p @data.all_trains.to_s
   end
@@ -224,15 +231,15 @@ class RouteMenu < MainMenu
     end
   end
 
-  private 
-	#Пользователь не дорлжен иметь доступ к редактированию этих методов
-	
+  private
+
+  # Пользователь не дорлжен иметь доступ к редактированию этих методов
+
   def routes_list
     p @data.all_routes.to_s
   end
 
   def create_route
-    
     p 'Введите название маршрута'
     name = gets.chomp
     p 'Задайте начальную станцию в маршруте'
@@ -290,9 +297,10 @@ class WagonMenu < MainMenu
     end
   end
 
-  private 
-	#Пользователь не дорлжен иметь доступ к редактированию этих методов
-	
+  private
+
+  # Пользователь не дорлжен иметь доступ к редактированию этих методов
+
   def create_wagon(type)
     p 'Введите название вагона'
     name = gets.chomp
