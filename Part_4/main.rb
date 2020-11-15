@@ -6,6 +6,8 @@ require_relative 'cargo_train'
 require_relative 'wagon'
 require_relative 'passenger_wagon'
 require_relative 'cargo_wagon'
+require './modules/company_name'
+require './modules/instance_counter'
 
 # 2 Класса - 1(ProgramData) - хранение данных, 2(MainMenu) - Интерфейс
 # Класс MainMenu содержит подклассы - подменю

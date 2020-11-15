@@ -1,17 +1,10 @@
-
 class Train
-
-  require_relative 'company_name'
-  require_relative 'instance_counter'
-
   attr_reader :speed, :number, :wagon_list, :train_type, :train_route, :train_station, :index_station, :trains_list
 
   include CompanyName
   include InstanceCounter
 
   @@trains_list = {}
-
-  @instances = 0
 
   def self.find
     p 'Введите название поезда'
@@ -20,11 +13,11 @@ class Train
 
   def initialize(number)
     @number = number
-    @company = self.set_company_name
+    @company = set_company_name
     @train_type = train_type
     @wagon_list = []
     @speed = 1
-    @@trains_list.merge!({ number => self})
+    @@trains_list.merge!({ number => self })
     register_instance
   end
 

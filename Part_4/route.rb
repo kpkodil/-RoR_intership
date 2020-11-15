@@ -1,6 +1,7 @@
-# НУЖНО СДЕЛАТЬ ПРОВЕРКУ НА СОВПАДЕНИЕ base и terminal !!!
 class Route
   attr_reader :name, :stations
+
+  include InstanceCounter
 
   def initialize(name, base, terminal, _stations = [])
     @name = name
