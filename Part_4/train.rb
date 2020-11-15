@@ -1,4 +1,7 @@
 class Train
+  require './modules/company_name'
+  require './modules/instance_counter'
+  
   attr_reader :speed, :number, :wagon_list, :train_type, :train_route, :train_station, :index_station, :trains_list
 
   include CompanyName

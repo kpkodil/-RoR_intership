@@ -339,4 +339,4 @@ class WagonMenu < MainMenu
 end
 
 data = ProgramData.new
-main = MainMenu.new(data).menu
+main = MainMenu.new(data)#.menu

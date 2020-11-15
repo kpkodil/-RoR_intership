@@ -1,3 +1,5 @@
+require './modules/instance_counter'
+
 class Station
   attr_reader :trains_list, :name, :all_stations
 
