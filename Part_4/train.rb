@@ -1,7 +1,7 @@
 class Train
   require './modules/company_name'
   require './modules/instance_counter'
-  
+
   attr_reader :speed, :number, :wagon_list, :train_type, :train_route, :train_station, :index_station, :trains_list
 
   include CompanyName
@@ -16,7 +16,6 @@ class Train
 
   def initialize(number)
     @number = number
-    @company = set_company_name
     @train_type = train_type
     @wagon_list = []
     @speed = 1

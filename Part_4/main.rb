@@ -187,6 +187,8 @@ class TrainMenu < MainMenu
       type == 'notype'
       @data.all_trains.merge!({ number => Train.new(number) })
     end
+    puts 'Введите название компании-производетеля'
+    @data.all_trains[number].set_company_name 
   end
 
   def take_route
@@ -308,11 +310,14 @@ class WagonMenu < MainMenu
   def create_wagon(type)
     p 'Введите название вагона'
     name = gets.chomp
+    p'Введите название компании-производетеля'
     if type == 'passenger'
       @data.all_wagons.merge!({ name => PassengerWagon.new(name) })
     elsif type == 'cargo'
       @data.all_wagons.merge!({ name => CargoWagon.new(name) })
     end
+    
+    @data.all_wagons[name].set_company_name     
   end
 
   def wagons_list
@@ -339,4 +344,4 @@ class WagonMenu < MainMenu
 end
 
 data = ProgramData.new
-main = MainMenu.new(data)#.menu
+main = MainMenu.new(data).menu
