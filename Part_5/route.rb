@@ -1,5 +1,7 @@
 require './modules/instance_counter'
 
+ROUTE_FORMAT = /^[A-Z]{1}[a-z]{1,}$/.freeze
+
 class Route
   attr_reader :name, :stations
 
@@ -10,6 +12,11 @@ class Route
     @base = base
     @terminal = terminal
     @stations = [@base, @terminal]
+    validate!
+  end
+
+  def validate!
+    raise if @name !~ ROUTE_FORMAT
   end
 
   def insert_station(station)

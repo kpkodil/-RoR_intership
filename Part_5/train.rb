@@ -9,6 +9,8 @@ class Train
 
   @@trains_list = {}
 
+  TRAIN_NAME = /^([A-Z]{3}|\d{3})-*([A-Z]{2}|\d{2})$/i.freeze
+
   def self.find
     p 'Введите название поезда'
     p @@trains_list[gets.chomp]
@@ -19,8 +21,13 @@ class Train
     @train_type = train_type
     @wagon_list = []
     @speed = 1
-    @@trains_list.merge!({ number => self })
     register_instance
+    validate!
+    @@trains_list.merge!({ number => self })
+  end
+
+  def validate!
+    raise if @number !~ TRAIN_NAME
   end
 
   def accelerate(speed)
@@ -44,8 +51,7 @@ class Train
 
     wagon_list.delete(wagon)
   end
-
-  # ДОБАВИТЬ УДАЛЕНИЕ СО СТАНЦИИ ПРИ ПЕРЕХОДЕ НА НОВЫЙ МАРШРУТ
+  
   def take_route(route)
     @train_route = route
     @train_station = route.stations[0]

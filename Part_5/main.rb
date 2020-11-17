@@ -89,6 +89,15 @@ class MainMenu
       end
     end
   end
+
+  protected
+
+  def valid?(object)
+    object.validate!
+    true
+  rescue StandardError
+    false
+  end
 end
 
 class StationMenu < MainMenu
@@ -119,11 +128,10 @@ class StationMenu < MainMenu
     p 'Введите название станции'
     name = gets.chomp
     @data.all_stations.merge!({ name => Station.new(name) })
+  rescue StandardError
+    p '!!! Название станции должно быть на английском языке и с заглавной буквы !!!'
+    retry
   end
-
-  # def stations_list
-  #   p @data.all_stations.to_s
-  # end
 
   def show_trains
     p 'Выберите станцию'
@@ -177,18 +185,32 @@ class TrainMenu < MainMenu
   end
 
   def create_train(type)
-    p 'Введите номер поезда'
-    number = gets.chomp
-    if type == 'passenger'
-      @data.all_trains.merge!({ number => PassengerTrain.new(number) })
-    elsif type == 'cargo'
-      @data.all_trains.merge!({ number => CargoTrain.new(number) })
-    else
-      type == 'notype'
-      @data.all_trains.merge!({ number => Train.new(number) })
+    begin
+      p 'Введите номер поезда'
+      number = gets.chomp
+      if type == 'passenger'
+        @data.all_trains.merge!({ number => PassengerTrain.new(number) })
+      elsif type == 'cargo'
+        @data.all_trains.merge!({ number => CargoTrain.new(number) })
+      else
+        type == 'notype'
+        @data.all_trains.merge!({ number => Train.new(number) })
+      end
+    rescue StandardError
+      p 'Допустимый формат:'
+      p  'три буквы или цифры в любом порядке,'
+      p  'необязательный дефис (может быть, а может нет)'
+      p  'и еще 2 буквы или цифры после дефиса.'
+      retry
     end
-    puts 'Введите название компании-производетеля'
-    @data.all_trains[number].set_company_name 
+    begin
+      p 'Введите название компании-производетеля'
+      @data.all_trains[number].set_company_name
+    rescue StandardError
+      p '!!! Название компании должно быть на английском языке и с заглавной буквы !!!'
+      retry
+    end
+    p "Создан поезд с номером №#{number}, от компании-производителя '#{@data.all_trains[number].get_company_name}'"
   end
 
   def take_route
@@ -246,13 +268,18 @@ class RouteMenu < MainMenu
   end
 
   def create_route
-    p 'Введите название маршрута'
-    name = gets.chomp
     p 'Задайте начальную станцию в маршруте'
     base = @data.all_stations[gets.chomp]
     p 'Задайте конечную станцию в маршруте'
     terminal = @data.all_stations[gets.chomp]
-    @data.all_routes.merge!({ name => Route.new(name, base, terminal) })
+    begin
+      p 'Введите название маршрута'
+      name = gets.chomp
+      @data.all_routes.merge!({ name => Route.new(name, base, terminal) })
+    rescue StandardError
+      p '!!! Название маршрута должно быть на английском языке и с заглавной буквы !!!'
+      retry
+    end
   end
 
   def add_station
@@ -305,19 +332,26 @@ class WagonMenu < MainMenu
 
   private
 
-  # Пользователь не дорлжен иметь доступ к редактированию этих методов
-
   def create_wagon(type)
-    p 'Введите название вагона'
-    name = gets.chomp
-    p'Введите название компании-производетеля'
-    if type == 'passenger'
-      @data.all_wagons.merge!({ name => PassengerWagon.new(name) })
-    elsif type == 'cargo'
-      @data.all_wagons.merge!({ name => CargoWagon.new(name) })
+    begin
+      p 'Введите номер вагона'
+      number = gets.chomp
+      if type == 'passenger'
+        @data.all_wagons.merge!({ number => PassengerWagon.new(number) })
+      elsif type == 'cargo'
+        @data.all_wagons.merge!({ number => CargoWagon.new(number) })
+      end
+    rescue StandardError
+      p '!!! Номер должен состоять из 2 цифр !!!'
+      retry
     end
-    
-    @data.all_wagons[name].set_company_name     
+    begin
+      p 'Введите название компании-производетеля'
+      @data.all_wagons[number].set_company_name
+    rescue StandardError
+      p '!!! Название компании должно быть на английском языке и с заглавной буквы !!!'
+      retry
+    end
   end
 
   def wagons_list

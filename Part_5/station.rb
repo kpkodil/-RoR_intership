@@ -1,5 +1,7 @@
 require './modules/instance_counter'
 
+STATION_FORMAT = /^[A-Z]{1}[a-z]{1,}$/.freeze
+
 class Station
   attr_reader :trains_list, :name, :all_stations
 
@@ -14,7 +16,12 @@ class Station
   def initialize(name)
     @name = name
     @trains_list = []
+    validate!
     @@all_stations << self
+  end
+
+  def validate!
+    raise if @name !~ STATION_FORMAT
   end
 
   def show_trains_types
