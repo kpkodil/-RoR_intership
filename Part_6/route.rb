@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require './modules/instance_counter'
 
 ROUTE_FORMAT = /^[A-Z]{1}[a-z]{1,}$/.freeze

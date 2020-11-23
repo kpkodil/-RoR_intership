@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 class Wagon
-  WAGON_FORMAT = /^\d{2}$/
+  WAGON_FORMAT = /^\d{2}$/.freeze
 
   require './modules/company_name'
   require './modules/instance_counter'
@@ -10,7 +12,7 @@ class Wagon
   include CompanyName
   include InstanceCounter
 
-  def initialize(number, seats)
+  def initialize(number, _seats)
     @number = number
     register_instance
     @wagon_type = wagon_type
@@ -21,5 +23,4 @@ class Wagon
   def validate!
     raise if @number !~ WAGON_FORMAT
   end
-
 end

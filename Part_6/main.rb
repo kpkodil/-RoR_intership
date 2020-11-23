@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'station'
 require_relative 'route'
 require_relative 'train'
@@ -22,15 +24,12 @@ class ProgramData
     @all_trains = all_trains
   end
 
-  
-   # Метод сид создан для автоматизации создания и связывания объектов
-   # Он создает:
-   #
-   # 3 станции (Moscow, Spb, Ekb)
-   # 1 маршрут (Route) - Станции: Moscow | Ekb | Spb
-   # 2 поезда (Грузовой 111Aa, Пассажирский 222Bb)
-
-  
+  # Метод сид создан для автоматизации создания и связывания объектов
+  # Он создает:
+  #
+  # 3 станции (Moscow, Spb, Ekb)
+  # 1 маршрут (Route) - Станции: Moscow | Ekb | Spb
+  # 2 поезда (Грузовой 111Aa, Пассажирский 222Bb)
 
   def self.seed(data)
     moscow = Station.new('Moscow')
@@ -46,7 +45,7 @@ class ProgramData
     route.insert_station(ekb)
 
     cart1 = CargoTrain.new('111Aa')
-   	data.all_trains.merge!({ '111Aa' => cart1 })
+    data.all_trains.merge!({ '111Aa' => cart1 })
     past2 = PassengerTrain.new('222Bb')
     data.all_trains.merge!({ '222Bb' => past2 })
     data.all_trains['111Aa'].take_route(route)
@@ -66,13 +65,11 @@ class ProgramData
     data.all_wagons.merge!({ '04' => paswag2 })
     past2.add_wagon(paswag2)
 
-
     p 'Созданы:'
-   	p '3 станции (Moscow, Spb, Ekb)'
-   	p '1 маршрут (Route) - Станции: Moscow | Ekb | Spb'
-   	p '2 поезда (Грузовой 111Aa, Пассажирский 222Bb)'
-   	p '4 вагона (2 грузовых (01, 02) и 2 пассажирских(03,04))'
-
+    p '3 станции (Moscow, Spb, Ekb)'
+    p '1 маршрут (Route) - Станции: Moscow | Ekb | Spb'
+    p '2 поезда (Грузовой 111Aa, Пассажирский 222Bb)'
+    p '4 вагона (2 грузовых (01, 02) и 2 пассажирских(03,04))'
   end
 end
 
@@ -92,17 +89,18 @@ class MainMenu
       p 'Введите 5, чтобы запустить сид'
       p 'Для выхода введите 0'
       choice = gets.chomp
-      if choice == '0'
+      case choice
+      when '0'
         abort 'Вы вышли из программы'
-      elsif choice == '1'
+      when '1'
         StationMenu.new(@data).menu
-      elsif choice == '2'
+      when '2'
         TrainMenu.new(@data).menu
-      elsif choice == '3'
+      when '3'
         RouteMenu.new(@data).menu
-      elsif choice == '4'
+      when '4'
         WagonMenu.new(@data).menu
-      elsif choice == '5'
+      when '5'
         ProgramData.seed(@data)
       else
         p 'Вы ввели недопустимую команду!'
@@ -129,11 +127,12 @@ class StationMenu < MainMenu
     p 'введите другой символ чтобы выйти'
     loop do
       choice = gets.chomp
-      if choice == '0'
+      case choice
+      when '0'
         p Station.all
-      elsif choice == '1'
+      when '1'
         create_station
-      elsif choice == '2'
+      when '2'
         show_trains
       end
       break
@@ -156,11 +155,11 @@ class StationMenu < MainMenu
   def show_trains
     p 'Выберите станцию'
     station = gets.chomp
-    @data.all_stations[station].show_trains do |train| 
-    p "Номер поезда: #{train.number}"
-    p "Тип: #{train.train_type}" 
-    p "количество вагонов: #{train.wagon_list.length}"
-  	end
+    @data.all_stations[station].show_trains do |train|
+      p "Номер поезда: #{train.number}"
+      p "Тип: #{train.train_type}"
+      p "количество вагонов: #{train.wagon_list.length}"
+    end
   end
 end
 
@@ -179,25 +178,26 @@ class TrainMenu < MainMenu
 
     loop do
       choice = gets.chomp
-      if choice == '0'
+      case choice
+      when '0'
         trains_list
-      elsif	choice == '1'
+      when '1'
         type = 'notype'
         create_train(type)
-      elsif choice == '2'
+      when '2'
         type = 'passenger'
         create_train(type)
-      elsif choice == '3'
+      when '3'
         type = 'cargo'
         create_train(type)
-      elsif choice == '4'
+      when '4'
         take_route
-      elsif choice == '5'
+      when '5'
         move_forward
-      elsif choice == '6'
+      when '6'
         move_back
-      elsif choice == '7'
-      	show_wagons
+      when '7'
+        show_wagons
       end
       break
     end
@@ -215,9 +215,10 @@ class TrainMenu < MainMenu
     begin
       p 'Введите номер поезда'
       number = gets.chomp
-      if type == 'passenger'
+      case type
+      when 'passenger'
         @data.all_trains.merge!({ number => PassengerTrain.new(number) })
-      elsif type == 'cargo'
+      when 'cargo'
         @data.all_trains.merge!({ number => CargoTrain.new(number) })
       else
         type == 'notype'
@@ -264,19 +265,19 @@ class TrainMenu < MainMenu
   def show_wagons
     p 'Выберите поезд'
     train = gets.chomp
-    @data.all_trains[train].show_wagons do |wagon| 
-    p "Номер вагона: #{wagon.number}"
-    p "Тип: #{wagon.wagon_type}" 
-    if wagon.wagon_type == :passenger 
-    	p "количество свободнх мест: #{wagon.vacant_seats}"
-    	p "Количество занятых мест: #{wagon.taken_seats}"
-    elsif wagon.wagon_type == :cargo
-    	p "Свободный объем: #{wagon.free_volume}"
-    	p "Занятый объем: #{wagon.occupied_volume}"
-    end	
-  	end
+    @data.all_trains[train].show_wagons do |wagon|
+      p "Номер вагона: #{wagon.number}"
+      p "Тип: #{wagon.wagon_type}"
+      case wagon.wagon_type
+      when :passenger
+        p "количество свободнх мест: #{wagon.vacant_seats}"
+        p "Количество занятых мест: #{wagon.taken_seats}"
+      when :cargo
+        p "Свободный объем: #{wagon.free_volume}"
+        p "Занятый объем: #{wagon.occupied_volume}"
+      end
+    end
   end
-
 end
 
 class RouteMenu < MainMenu
@@ -290,13 +291,14 @@ class RouteMenu < MainMenu
 
     loop do
       choice = gets.chomp
-      if choice == '0'
+      case choice
+      when '0'
         routes_list
-      elsif	choice == '1'
+      when '1'
         create_route
-      elsif choice == '2'
+      when '2'
         add_station
-      elsif choice == '3'
+      when '3'
         remove_station
       end
       break
@@ -359,21 +361,22 @@ class WagonMenu < MainMenu
 
     loop do
       choice = gets.chomp
-      if choice == '0'
+      case choice
+      when '0'
         wagons_list
-      elsif	choice == '1'
+      when '1'
         type = 'passenger'
         create_wagon(type)
-      elsif choice == '2'
+      when '2'
         type = 'cargo'
         create_wagon(type)
-      elsif choice == '3'
+      when '3'
         add_to_train
-      elsif choice == '4'
+      when '4'
         remove_from_train
-      elsif choice == '5'
+      when '5'
         take_seat
-      elsif choice == '6'
+      when '6'
         occupy_volume
       end
       break
@@ -386,12 +389,13 @@ class WagonMenu < MainMenu
     begin
       p 'Введите номер вагона'
       number = gets.chomp
-      if type == 'passenger'
+      case type
+      when 'passenger'
         p 'введите количество мест в вагоне'
         vacant_seats = gets.chomp.to_i
-        @data.all_wagons.merge!({ number => PassengerWagon.new(number,vacant_seats) })
-      elsif type == 'cargo'
-      	p 'введите объем вагона'
+        @data.all_wagons.merge!({ number => PassengerWagon.new(number, vacant_seats) })
+      when 'cargo'
+        p 'введите объем вагона'
         free_volume = gets.chomp.to_i
         @data.all_wagons.merge!({ number => CargoWagon.new(number, free_volume) })
       end
@@ -431,23 +435,22 @@ class WagonMenu < MainMenu
   end
 
   def take_seat
-  	p 'введите номер пассажирского вагона, в котором хотите занять место'
-  	@data.all_wagons[gets.chomp].take_seat
+    p 'введите номер пассажирского вагона, в котором хотите занять место'
+    @data.all_wagons[gets.chomp].take_seat
   end
 
   def occupy_volume
-  	p 'введите номер грузовог вагона, в котором хотите поместить груз'
-  	wagon_number = gets.chomp
-  	begin
-	  	p 'введите объем загрузки'
-	  	load = gets.chomp.to_i
-	  	@data.all_wagons[wagon_number].occupy_volume(load)
-		rescue RuntimeError
-			p '!!! Объем загрузки превышает свободный объем вагона !!!'
-			retry
-		end	
-  end  
-
+    p 'введите номер грузовог вагона, в котором хотите поместить груз'
+    wagon_number = gets.chomp
+    begin
+      p 'введите объем загрузки'
+      load = gets.chomp.to_i
+      @data.all_wagons[wagon_number].occupy_volume(load)
+    rescue RuntimeError
+      p '!!! Объем загрузки превышает свободный объем вагона !!!'
+      retry
+    end
+  end
 end
 
 data = ProgramData.new

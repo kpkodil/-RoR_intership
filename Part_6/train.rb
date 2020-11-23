@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Train
   require './modules/company_name'
   require './modules/instance_counter'
@@ -44,7 +46,7 @@ class Train
   def add_wagon(wagon)
     return unless @train_type == wagon.wagon_type
 
-    self.wagon_list << wagon
+    wagon_list << wagon
   end
 
   def remove_wagon(wagon)
@@ -53,15 +55,14 @@ class Train
     wagon_list.delete(wagon)
   end
 
-
-  # show_trains do |wagon| 
+  # show_trains do |wagon|
   #   p "Номер вагона: #{wagon.number}"
-  #   p "Тип: #{wagon.wagon_type}" 
+  #   p "Тип: #{wagon.wagon_type}"
   #   p "количество мест: #{wagon.wagon_list.length}"
   # end
 
-  def show_wagons
-    self.wagon_list.each { |wagon| yield(wagon) }
+  def show_wagons(&block)
+    wagon_list.each(&block)
   end
 
   def take_route(route)

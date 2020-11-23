@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require './modules/instance_counter'
 
 STATION_FORMAT = /^[A-Z]{1}[a-z]{1,}$/.freeze
@@ -24,14 +26,12 @@ class Station
     raise if @name !~ STATION_FORMAT
   end
 
-
-  def show_trains
-    self.trains_list.each { |train| yield(train) }
+  def show_trains(&block)
+    trains_list.each(&block)
   end
 
-# show_trains {|train| p "Номер поезда: #{train.number}, Тип: #{train.train_type}, кол
-# ичество вагонов: #{train.wagon_list.length}" }
-
+  # show_trains {|train| p "Номер поезда: #{train.number}, Тип: #{train.train_type}, кол
+  # ичество вагонов: #{train.wagon_list.length}" }
 
   def show_trains_types
     types_list = []
