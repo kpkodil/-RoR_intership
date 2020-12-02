@@ -3,12 +3,18 @@
 class Train
   require './modules/company_name'
   require './modules/instance_counter'
-
-  attr_reader :speed, :number, :train_type, :train_route, :train_station, :index_station, :trains_list
-  attr_accessor :wagon_list
+  require './modules/accessors'
+  require './modules/validations'
 
   include CompanyName
   include InstanceCounter
+  extend Accessors
+  include Validation
+
+  attr_reader :speed, :number, :train_type, :train_route, :index_station, :trains_list
+  attr_accessor :wagon_list, :company
+
+  attr_accessor_with_history :train_station
 
   @@trains_list = {}
 
@@ -19,6 +25,10 @@ class Train
     p @@trains_list[gets.chomp]
   end
 
+  validate :number, :presence
+  validate :number, :format, TRAIN_NAME
+  validate :number, :type, String
+
   def initialize(number)
     @number = number
     @train_type = train_type
@@ -27,10 +37,6 @@ class Train
     register_instance
     validate!
     @@trains_list.merge!({ number => self })
-  end
-
-  def validate!
-    raise if @number !~ TRAIN_NAME
   end
 
   def accelerate(speed)
@@ -54,12 +60,6 @@ class Train
 
     wagon_list.delete(wagon)
   end
-
-  # show_trains do |wagon|
-  #   p "Номер вагона: #{wagon.number}"
-  #   p "Тип: #{wagon.wagon_type}"
-  #   p "количество мест: #{wagon.wagon_list.length}"
-  # end
 
   def show_wagons(&block)
     wagon_list.each(&block)

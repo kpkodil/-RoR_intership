@@ -5,22 +5,24 @@ class Wagon
 
   require './modules/company_name'
   require './modules/instance_counter'
+  require './modules/accessors'
+  require './modules/validations'
 
   attr_reader :wagon_type, :number
   attr_accessor :company
 
   include CompanyName
   include InstanceCounter
+  include Accessors
+  include Validation
 
-  def initialize(number, _seats)
+  validate :number, :format, WAGON_FORMAT
+
+  def initialize(number, _option)
     @number = number
     register_instance
     @wagon_type = wagon_type
     @company = company
     validate!
-  end
-
-  def validate!
-    raise if @number !~ WAGON_FORMAT
   end
 end

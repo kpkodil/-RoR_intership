@@ -7,72 +7,56 @@ module Validation
   end
 
   module ClassMethods
-
     def validate(atr, valid_type, *parameters)
-    	@@validations ||= []
-    	@@validations << {:atr => atr, :valid_type => valid_type, :option => parameters.first}
-
-    end 
+      @validations ||= []
+      @validations << { atr: atr, valid_type: valid_type, option: parameters.first }
+    end
 
     def get_validations
-    	@@validations	
-     end 
+      @validations
+    end
   end
 
   module InstanceMethods
     def validate!
-      validations = self.class.get_validations     
-     	validations.each do |validation|     		
-     		atr = validation[:atr]
-     		value = instance_variable_get("@#{atr}".to_sym)
-     		p "value is: #{value}"
-     		valid_type = validation[:valid_type]
-     		p "valid type is: #{valid_type}"
-     		parameter = validation[:option]
-     		p "parameter is #{parameter}"
-	      case valid_type
-	      when :presence
-	        validate_presence(value.to_str)
-	      when :format
-	        validate_format(value, parameter)
-	      when :type
-	        validate_type(value, parameter)
-	      end
-	    end
+      validations = self.class.get_validations
+      validations.each do |validation|
+        atr = validation[:atr]
+        value = instance_variable_get("@#{atr}".to_sym)
+        valid_type = validation[:valid_type]
+        parameter = validation[:option]
+        case valid_type
+        when :presence
+          validate_presence(value)
+        when :type
+          validate_type(value, parameter)
+        when :format
+          validate_format(value, parameter)
+        end
+      end
     end
 
     def validate_presence(value)
-      raise if value.nil? || value.empty?
-
-      p 'presence validation successfully complited'
+      raise StandardError if value.nil? || value.to_s.empty?
     end
 
     def validate_format(value, pattern)
-      raise NameError if value !~ pattern
-
-      p 'format validation successfully complited'
+      raise NameError if value.to_s !~ pattern
     end
 
     def validate_type(value, type)
       raise TypeError if value.class != type
+    end
 
-      p 'type validation successfully complited'
+    def valid?
+      validate!
+      true
+    rescue StandardError
+      false
+    rescue NameError
+      false
+    rescue TypeError
+      false
     end
   end
 end
-
-class Test
-  include Validation
-
-  attr_accessor :name, :number
-
-end
-
-t = Test.new
-Test.validate :name, :format, /[a-c]{3}/
-Test.validate :name, :presence
-Test.validate :number, :type, Integer
-t.name = 'aaa'
-t.number = 123
-t.validate!
-

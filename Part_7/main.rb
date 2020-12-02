@@ -10,6 +10,8 @@ require_relative 'passenger_wagon'
 require_relative 'cargo_wagon'
 require './modules/company_name'
 require './modules/instance_counter'
+require './modules/accessors'
+require './modules/validations'
 
 # 2 Класса - 1(ProgramData) - хранение данных, 2(MainMenu) - Интерфейс
 # Класс MainMenu содержит подклассы - подменю
@@ -114,6 +116,11 @@ class MainMenu
     object.validate!
     true
   rescue StandardError
+    p '!!! Значение атрибута пустое или отстутствует'
+  rescue NameError
+    p '!!! Значение атрибута не соответствует шаблону'
+  rescue TypeError
+    p '!!! Значения атрибута не соответствует заданному типу'
     false
   end
 end
@@ -147,8 +154,14 @@ class StationMenu < MainMenu
     p 'Введите название станции'
     name = gets.chomp
     @data.all_stations.merge!({ name => Station.new(name) })
+  rescue NameError
+    p '!!! Название станции должно соответствовать шаблону !!!'
+    retry
   rescue StandardError
-    p '!!! Название станции должно быть на английском языке и с заглавной буквы !!!'
+    p '!!! Название станции должно быть не пустым !!!'
+    retry
+  rescue TypeError
+    p '!!! Название должно соответствовать требуемому типу !!!'
     retry
   end
 
@@ -224,18 +237,25 @@ class TrainMenu < MainMenu
         type == 'notype'
         @data.all_trains.merge!({ number => Train.new(number) })
       end
+    rescue NameError
+      p '!!! Название поезда должно соответствовать шаблону !!!'
+      retry
     rescue StandardError
-      p 'Допустимый формат:'
-      p  'три буквы или цифры в любом порядке,'
-      p  'необязательный дефис (может быть, а может нет)'
-      p  'и еще 2 буквы или цифры после дефиса.'
+      p '!!! Название поезда должно быть не пустым !!!'
+      retry
+    rescue TypeError
+      p '!!! Название поезда соответствовать требуемому типу !!!'
       retry
     end
     begin
       p 'Введите название компании-производетеля'
-      @data.all_trains[number].set_company_name
-    rescue StandardError
-      p '!!! Название компании должно быть на английском языке и с заглавной буквы !!!'
+      company_name = gets.chomp
+      # company = CompanyName.new(company_name)
+      @data.all_trains[number].set_company_name(company_name)
+      @data.all_trains[number].class.validate :company, :format, CompanyName.const_get(:COMPANY_FORMAT)
+      @data.all_trains[number].validate!
+    rescue NameError
+      p '!!! Название компании должно соответствовать шаблону !!!'
       retry
     end
     p "Создан поезд с номером №#{number}, от компании-производителя '#{@data.all_trains[number].get_company_name}'"
@@ -322,8 +342,14 @@ class RouteMenu < MainMenu
       p 'Введите название маршрута'
       name = gets.chomp
       @data.all_routes.merge!({ name => Route.new(name, base, terminal) })
+    rescue NameError
+      p '!!! Название станции должно соответствовать шаблону !!!'
+      retry
     rescue StandardError
-      p '!!! Название маршрута должно быть на английском языке и с заглавной буквы !!!'
+      p '!!! Название станции должно быть не пустым !!!'
+      retry
+    rescue TypeError
+      p '!!! Название должно соответствовать требуемому типу !!!'
       retry
     end
   end
@@ -392,25 +418,67 @@ class WagonMenu < MainMenu
       case type
       when 'passenger'
         p 'введите количество мест в вагоне'
-        vacant_seats = gets.chomp.to_i
+        vacant_seats = gets.chomp
         @data.all_wagons.merge!({ number => PassengerWagon.new(number, vacant_seats) })
       when 'cargo'
         p 'введите объем вагона'
-        free_volume = gets.chomp.to_i
+        free_volume = gets.chomp
         @data.all_wagons.merge!({ number => CargoWagon.new(number, free_volume) })
       end
-    rescue StandardError
-      p '!!! Номер должен состоять из 2 цифр !!!'
+    rescue NameError
+      p '!!! Название поезда должно соответствовать шаблону !!!'
       retry
+      # rescue TypeError
+      #   p '!!! Число мест / объем вагоне должно соответствовать Integer !!!'
+      #   retry
     end
     begin
       p 'Введите название компании-производетеля'
-      @data.all_wagons[number].set_company_name
-    rescue StandardError
-      p '!!! Название компании должно быть на английском языке и с заглавной буквы !!!'
+      company_name = gets.chomp
+      @data.all_wagons[number].set_company_name(company_name)
+      @data.all_wagons[number].class.validate :company, :format, CompanyName.const_get(:COMPANY_FORMAT)
+      @data.all_wagons[number].validate!
+    rescue NameError
+      p '!!! Название компании должно соответствовать шаблону !!!'
       retry
     end
   end
+
+  # def create_train(type)
+  # begin
+  #   p 'Введите номер поезда'
+  #   number = gets.chomp
+  #   case type
+  #   when 'passenger'
+  #     @data.all_trains.merge!({ number => PassengerTrain.new(number) })
+  #   when 'cargo'
+  #     @data.all_trains.merge!({ number => CargoTrain.new(number) })
+  #   else
+  #     type == 'notype'
+  #     @data.all_trains.merge!({ number => Train.new(number) })
+  #   end
+  # rescue NameError
+  #   p '!!! Название поезда должно соответствовать шаблону !!!'
+  #   retry
+  # rescue StandardError
+  #   p '!!! Название поезда должно быть не пустым !!!'
+  #   retry
+  # rescue TypeError
+  #   p '!!! Название поезда соответствовать требуемому типу !!!'
+  #   retry
+  # end
+  # begin
+  #   p 'Введите название компании-производетеля'
+  #   company_name = gets.chomp
+  #   #company = CompanyName.new(company_name)
+  #   @data.all_trains[number].set_company_name(company_name)
+  #   @data.all_trains[number].class.validate :company, :format, CompanyName.const_get(:COMPANY_FORMAT)
+  #   @data.all_trains[number].validate!
+  # rescue NameError
+  #   p '!!! Название компании должно соответствовать шаблону !!!'
+  #   retry
+  # end
+  # p "С
 
   def wagons_list
     p @data.all_wagons.to_s
@@ -455,3 +523,43 @@ end
 
 data = ProgramData.new
 main = MainMenu.new(data).menu
+
+#     moscow = Station.new('Moscow')
+#     data.all_stations.merge!({ 'Moscow' => moscow })
+#     spb = Station.new('Spb')
+#     data.all_stations.merge!({ 'Spb' => spb })
+#     ekb = Station.new('Ekb')
+#     data.all_stations.merge!({ 'Ekb' => ekb })
+
+#     route = Route.new('Route', moscow, spb)
+#     data.all_routes.merge!({ 'Route' => route })
+
+#     route.insert_station(ekb)
+
+#     tr1 = Train.new('333Cc')
+#     data.all_trains.merge!({ '333Cc' => tr1 })
+#     data.all_trains['333Cc'].take_route(route)
+#     # cart1 = CargoTrain.new('111Aa')
+#     # data.all_trains.merge!({ '111Aa' => cart1 })
+#     # past2 = PassengerTrain.new('222Bb')
+#     # data.all_trains.merge!({ '222Bb' => past2 })
+#     # data.all_trains['111Aa'].take_route(route)
+#     # data.all_trains['222Bb'].take_route(route)
+
+#     wag1 = Wagon.new('33')
+#     data.all_wagons.merge!({ '33' => wag1 })
+#     # carwag1 = CargoWagon.new('01', 100)
+#     # data.all_wagons.merge!({ '01' => carwag1 })
+#     # cart1.add_wagon(carwag1)
+#     # carwag2 = CargoWagon.new('02', 120)
+#     # data.all_wagons.merge!({ '02' => carwag2 })
+#     # cart1.add_wagon(carwag2)
+
+#     # paswag1 = PassengerWagon.new('03', 30)
+#     # data.all_wagons.merge!({ '03' => paswag1 })
+#     # past2.add_wagon(paswag1)
+#     # paswag2 = PassengerWagon.new('04', 35)
+#     # data.all_wagons.merge!({ '04' => paswag2 })
+#     # past2.add_wagon(paswag2)
+
+# #main.valid?(data.all_stations[moscow])

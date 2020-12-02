@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require './modules/instance_counter'
+require './modules/accessors'
+require './modules/validations'
 
 STATION_FORMAT = /^[A-Z]{1}[a-z]{1,}$/.freeze
 
@@ -8,8 +10,14 @@ class Station
   attr_reader :trains_list, :name, :all_stations
 
   include InstanceCounter
+  include Validation
+  extend Accessors
 
   @@all_stations = []
+
+  validate :name, :presence
+  validate :name, :format, STATION_FORMAT
+  validate :name, :type, String
 
   def self.all
     @@all_stations
@@ -22,16 +30,9 @@ class Station
     @@all_stations << self
   end
 
-  def validate!
-    raise if @name !~ STATION_FORMAT
-  end
-
   def show_trains(&block)
     trains_list.each(&block)
   end
-
-  # show_trains {|train| p "Номер поезда: #{train.number}, Тип: #{train.train_type}, кол
-  # ичество вагонов: #{train.wagon_list.length}" }
 
   def show_trains_types
     types_list = []

@@ -3,6 +3,13 @@
 class CargoWagon < Wagon
   attr_reader :free_volume, :occupied_volume
 
+  include Validation
+
+  WAGON_FORMAT = /^\d{2}$/.freeze
+
+  validate :number, :format, WAGON_FORMAT
+  validate :free_volume, :type, Integer
+
   def initialize(number, free_volume)
     @wagon_type = :cargo
     @free_volume = free_volume
