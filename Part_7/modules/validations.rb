@@ -7,25 +7,38 @@ module Validation
   end
 
   module ClassMethods
+
     def validate(atr, valid_type, *parameters)
-      if block_given?
-        yield
-        value = atr
-        p "value after block is: #{value}"
-        p "atr after block is: #{atr}"
-        p "valid_type after block is: #{valid_type}"
-        p "parameter after block is: #{parameters}"
-      else
-        value = class_variable_get("@@#{atr}".to_sym)
-      end
-      case valid_type
-      when :presence
-        validate_presence(value)
-      when :format
-        validate_format(value, parameters.first)
-      when :type
-        validate_type(value, parameters.first)
-      end
+    	@@validations ||= []
+    	@@validations << {:atr => atr, :valid_type => valid_type, :option => parameters.first}
+
+    end 
+
+    def get_validations
+    	@@validations	
+     end 
+  end
+
+  module InstanceMethods
+    def validate!
+      validations = self.class.get_validations     
+     	validations.each do |validation|     		
+     		atr = validation[:atr]
+     		value = instance_variable_get("@#{atr}".to_sym)
+     		p "value is: #{value}"
+     		valid_type = validation[:valid_type]
+     		p "valid type is: #{valid_type}"
+     		parameter = validation[:option]
+     		p "parameter is #{parameter}"
+	      case valid_type
+	      when :presence
+	        validate_presence(value.to_str)
+	      when :format
+	        validate_format(value, parameter)
+	      when :type
+	        validate_type(value, parameter)
+	      end
+	    end
     end
 
     def validate_presence(value)
@@ -46,18 +59,6 @@ module Validation
       p 'type validation successfully complited'
     end
   end
-
-  module InstanceMethods
-    def validate!(atr, atr_format, atr_type)
-      atr = instance_variable_get("@#{atr}".to_sym)
-      types_values = { presence: [nil, atr], format: [atr_format, atr], type: [atr_type, atr] } # Как по-другому передать atr в метод validate извне? Чтобы не повторяться здесь.
-      types_values.each do |type_value|
-        p ''
-        p 'Validating...'
-        self.class.validate(type_value[1][1], type_value[0], type_value[1][0]) { |atr| } # Правильно ли передаввать пустой блок?
-      end
-    end
-  end
 end
 
 class Test
@@ -65,10 +66,13 @@ class Test
 
   attr_accessor :name, :number
 
-  @@atr = 'abc'
 end
 
 t = Test.new
-# Test.validate :atr, :format, /[a-c]{3}/
+Test.validate :name, :format, /[a-c]{3}/
+Test.validate :name, :presence
+Test.validate :number, :type, Integer
 t.name = 'aaa'
-t.validate! :name, /[a-c]{3}/, String
+t.number = 123
+t.validate!
+
