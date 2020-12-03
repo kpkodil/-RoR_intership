@@ -9,7 +9,7 @@ module Validation
   module ClassMethods
     def validate(atr, valid_type, *parameters)
       @validations ||= []
-      @validations << { atr: atr, valid_type: valid_type, option: parameters.first }
+      @validations << { atr: atr, valid_type: valid_type, option: parameters }
     end
 
     def get_validations
@@ -21,22 +21,11 @@ module Validation
     def validate!
       validations = self.class.get_validations
       validations.each do |validation|
-        atr = validation[:atr]
-        value = instance_variable_get("@#{atr}".to_sym)
-        valid_type = validation[:valid_type]
-        parameter = validation[:option]
-        case valid_type
-        when :presence
-          validate_presence(value)
-        when :type
-          validate_type(value, parameter)
-        when :format
-          validate_format(value, parameter)
-        end
+        send "validate_#{validation[:valid_type]}", instance_variable_get("@#{validation[:atr]}"), validation[:option].first
       end
     end
 
-    def validate_presence(value)
+    def validate_presence(value, _option)
       raise StandardError if value.nil? || value.to_s.empty?
     end
 
